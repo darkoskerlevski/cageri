@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="mk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цагери - Дизајнирано од Дарко</title>
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --bg: #f0f2f5;
+            --text: #333;
+            --card-bg: #ffffff;
+            --accent: #ff4081;
+            --next-color: #4caf50;
+            --prev-color: #9e9e9e;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 1.2rem;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            background: white;
+            padding: 12px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .tab-btn {
+            border: none;
+            background: none;
+            font-weight: 700;
+            color: #888;
+            cursor: pointer;
+            padding: 8px 20px;
+            border-radius: 25px;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .content {
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            flex-grow: 1;
+            width: 100%;
+        }
+
+        .section { display: none; }
+        .section.active { display: block; animation: fadeIn 0.4s ease-out; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Home Screen */
+        .clock-container {
+            text-align: center;
+            padding: 30px 15px;
+            background: white;
+            border-radius: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        #real-time-clock {
+            font-size: 4rem;
+            font-weight: 800;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 10px 0;
+        }
+
+        .active-cager-box {
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 20px;
+            background: #fff0f6;
+            border: 2px solid var(--accent);
+            transition: 0.3s;
+        }
+
+        /* Relative Cagers (Prev/Next) */
+        .relative-cagers {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .rel-box {
+            background: #fdfdfd;
+            padding: 12px;
+            border-radius: 15px;
+            border: 1px solid #eee;
+            text-align: left;
+        }
+
+        .rel-label { font-size: 0.7rem; text-transform: uppercase; font-weight: bold; margin-bottom: 5px; display: block; }
+        .rel-time { font-weight: bold; color: var(--primary); font-size: 0.9rem; }
+        .rel-text { font-size: 0.8rem; color: #555; display: block; margin-top: 2px; }
+
+        .prev-box { border-left: 4px solid var(--prev-color); }
+        .next-box { border-left: 4px solid var(--next-color); }
+
+        /* Schedule */
+        .day-selector {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            scrollbar-width: none;
+        }
+        .day-selector::-webkit-scrollbar { display: none; }
+
+        .day-btn {
+            flex: 0 0 auto;
+            padding: 10px 18px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            background: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+        .day-btn.selected { background: var(--secondary); color: white; border-color: var(--secondary); }
+
+        .cager-list { display: grid; gap: 8px; }
+        .cager-item {
+            display: flex;
+            justify-content: space-between;
+            background: white;
+            padding: 16px;
+            border-radius: 15px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .cager-time { font-weight: 800; color: var(--primary); }
+
+        /* Info Tab */
+        .info-card {
+            background: white;
+            padding: 25px;
+            border-radius: 25px;
+            line-height: 1.6;
+        }
+
+        .creator-tag {
+            margin-top: 25px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary);
+        }
+
+        footer {
+            text-align: center;
+            padding: 25px;
+            font-size: 0.85rem;
+            color: #777;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+<nav>
+    <h1 style="letter-spacing: 2px;">ЦАГЕРИ</h1>
+</nav>
+
+<div class="tabs">
+    <button class="tab-btn active" onclick="showSection('home')">Почетна</button>
+    <button class="tab-btn" onclick="showSection('schedule')">Листа</button>
+    <button class="tab-btn" onclick="showSection('info')">Инфо</button>
+</div>
+
+<div class="content">
+    
+    <!-- HOME SECTION -->
+    <section id="home" class="section active">
+        <div class="clock-container">
+            <p id="current-date" style="color: #666; font-weight: 600;"></p>
+            <div id="real-time-clock">00:00:00</div>
+            
+            <div id="active-info" class="active-cager-box">
+                <!-- Populated by JS -->
+            </div>
+
+            <div class="relative-cagers">
+                <div class="rel-box prev-box">
+                    <span class="rel-label" style="color: var(--prev-color);">Претходен</span>
+                    <div id="prev-cager-content">--:--</div>
+                </div>
+                <div class="rel-box next-box">
+                    <span class="rel-label" style="color: var(--next-color);">Следен</span>
+                    <div id="next-cager-content">--:--</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SCHEDULE SECTION -->
+    <section id="schedule" class="section">
+        <div class="day-selector" id="day-selector"></div>
+        <div class="cager-list" id="cager-list-container"></div>
+    </section>
+
+    <!-- INFO SECTION -->
+    <section id="info" class="section">
+        <div class="info-card">
+            <h2>Информации</h2>
+            <br>
+            <p>Оваа апликација служи за забава и толкување на значењето на времето кога часовите и минутите се поклопуваат.</p>
+            <br>
+            <p>Секој ден носи различна порака. Податоците се базирани на традиционалните македонски верувања за "цагери".</p>
+            
+            <div class="creator-tag">
+                Изработено со помош на <strong>AI</strong><br>
+                Идеја и концепт: <strong>Дарко</strong>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<footer>
+    &copy; 2025 Цагери • Дизајнирано од Дарко
+</footer>
+
+<script>
+    const cageriData = {
+        "Ponedelnik": { "00:00": "Те сака", "01:01": "Време е да решите", "02:02": "Некој ќе ти се јави", "03:03": "Поглед во четири очи", "04:04": "Љубоморен е", "05:05": "Ќе бидеш среќна", "06:06": "Те мисли", "07:07": "Очекувај порака", "08:08": "Нова љубов", "09:09": "Некој те посакува", "10:10": "Плав дечко те мисли", "11:11": "Бакнеж", "12:12": "Состанок", "13:13": "Те сака црн дечко", "14:14": "Љубов на повидок", "15:15": "Ќе се скарате", "16:16": "Верност", "17:17": "Среќа во љубовта", "18:18": "Долго ќе бидете заедно", "19:19": "Те лаже", "20:20": "Ќе ти се пушта", "21:21": "Ти си му се", "22:22": "Не може без тебе", "23:23": "Те сонува" },
+        "Vtornik": { "00:00": "Ќе се фатите", "01:01": "Сака усни твои", "02:02": "Не може без тебе", "03:03": "Сака да е со тебе", "04:04": "Крај е на се", "05:05": "Те обожава", "06:06": "Ќе ти се јави", "07:07": "Нова љубов", "08:08": "Мисли на тебе", "09:09": "Љубомори", "10:10": "Му се допаѓаш", "11:11": "Се би сторил за тебе", "12:12": "Изненадувања", "13:13": "Ќе ти се пушти", "14:14": "Ќе те прегрне", "15:15": "Лудо заљубен", "16:16": "Те мрази", "17:17": "Ќе се скарате", "18:18": "Ќе се видите", "19:19": "Те лаже", "20:20": "Сака пак да си со него", "21:21": "Те сака повеќе од се", "22:22": "Ќе те баци", "23:23": "Не може без тебе" },
+        "Sreda": { "00:00": "Замисли желба", "01:01": "Те мисли", "02:02": "Ќе се фатиш", "03:03": "Ќе раскинете", "04:04": "Те свиѓа", "05:05": "Те сака", "06:06": "Те мисли плав дечко", "07:07": "Некој ви се меша", "08:08": "Бакнеж", "09:09": "Љубоморен", "10:10": "Ќе се муваш", "11:11": "Другар му те свиѓа", "12:12": "Понуда од плав дечко", "13:13": "Мисли на тебе", "14:14": "Крие дека те сака", "15:15": "Чека прв чекор", "16:16": "Понуда од црн дечко", "17:17": "Ќе останете другари", "18:18": "Сака друга", "19:19": "Добра врска", "20:20": "Корпа", "21:21": "Нова врска", "22:22": "Среќна си", "23:23": "Ти си му во срцето" },
+        "Cetvrtok": { "00:00": "Ќе ти се исполни желбата", "01:01": "Наскоро среќа", "02:02": "Ќе го видиш", "03:03": "Ќе те бакне", "04:04": "Разочаран е", "05:05": "Те сонува", "06:06": "Авантура", "07:07": "Цел ден среќа", "08:08": "Другар му ќе ти се пушта", "09:09": "Писмо", "10:10": "Разговор", "11:11": "Заедно ќе бидете", "12:12": "Постојано си му во мисли", "13:13": "Сака нешто посебно", "14:14": "Ќе ти признае љубов", "15:15": "Големи шанси", "16:16": "Порака наскоро", "17:17": "Му се допаѓа на другар му", "18:18": "Изненадна среќа", "19:19": "Ќе каже те сакам", "20:20": "Остави го", "21:21": "Ќе ти се пушта", "22:22": "Му се свиѓаш", "23:23": "Се опива за тебе" },
+        "Petok": { "00:00": "Ќе ти се пушта", "01:01": "Те сака само тебе", "02:02": "Љубов", "03:03": "Некој те мисли", "04:04": "Не може без тебе", "05:05": "Ќе се скарате", "06:06": "Те лаже", "07:07": "Среќен ден", "08:08": "Порака", "09:09": "Те обожава", "10:10": "Ќе те бакне", "11:11": "Мисли на тебе", "12:12": "Нова љубов", "13:13": "Те мисли", "14:14": "Ќе се смирите", "15:15": "Те сака црн дечко", "16:16": "Ќе се видите", "17:17": "Бакнеж", "18:18": "Љубоморен е", "19:19": "Среќа", "20:20": "Признание", "21:21": "Те сака многу", "22:22": "Ќе се фатите", "23:23": "Мисли на тебе" },
+        "Vikend": { "00:00": "Те мисли", "01:01": "Кавга", "02:02": "Љубоморен", "03:03": "Му се допаѓаш", "04:04": "Изненадување", "05:05": "Те сака", "06:06": "Средба", "07:07": "Бакнеж", "08:08": "Среќа", "09:09": "Те обожава", "10:10": "Повик", "11:11": "Те сонува", "12:12": "Состанок", "13:13": "Признание", "14:14": "Те сака", "15:15": "Сака да те види", "16:16": "Авантура", "17:17": "Среќа", "18:18": "Пуштање", "19:19": "Те обожава", "20:20": "Мисли на тебе", "21:21": "Љубов", "22:22": "Те сака многу", "23:23": "Не може без тебе" }
+    };
+
+    const daysMk = { "Ponedelnik": "Пон", "Vtornik": "Вто", "Sreda": "Сре", "Cetvrtok": "Чет", "Petok": "Пет", "Vikend": "Викенд" };
+    let selectedDay = getCurrentDayKey();
+
+    function getCurrentDayKey() {
+        const day = new Date().getDay();
+        if (day === 1) return "Ponedelnik";
+        if (day === 2) return "Vtornik";
+        if (day === 3) return "Sreda";
+        if (day === 4) return "Cetvrtok";
+        if (day === 5) return "Petok";
+        return "Vikend";
+    }
+
+    function showSection(id) {
+        document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        event.target.classList.add('active');
+    }
+
+    function updateClock() {
+        const now = new Date();
+        const h = String(now.getHours()).padStart(2, '0');
+        const m = String(now.getMinutes()).padStart(2, '0');
+        const s = String(now.getSeconds()).padStart(2, '0');
+        const timeKey = `${h}:${m}`;
+        const currentDayKey = getCurrentDayKey();
+        
+        document.getElementById('real-time-clock').innerText = `${h}:${m}:${s}`;
+        document.getElementById('current-date').innerText = now.toLocaleDateString('mk-MK', { weekday: 'long', day: 'numeric', month: 'long' });
+
+        // Active Cager Logic
+        const activeInfo = document.getElementById('active-info');
+        if (cageriData[currentDayKey][timeKey]) {
+            activeInfo.innerHTML = `<h3 style="color:var(--accent)">АКТИВЕН ЦАГЕР! ✨</h3><p style="font-size: 1.3rem; font-weight: bold;">${timeKey} - ${cageriData[currentDayKey][timeKey]}</p>`;
+            activeInfo.style.opacity = "1";
+        } else {
+            activeInfo.innerHTML = `<p style="color:#888; font-weight:600;">Нема активен цагер во моментов</p>`;
+            activeInfo.style.opacity = "0.8";
+        }
+
+        // Prev & Next Logic
+        const times = Object.keys(cageriData[currentDayKey]);
+        const currentInMins = now.getHours() * 60 + now.getMinutes();
+        
+        let prevTime = times[times.length - 1];
+        let nextTime = times[0];
+
+        for (let i = 0; i < times.length; i++) {
+            const [th, tm] = times[i].split(':').map(Number);
+            const mins = th * 60 + tm;
+            if (mins < currentInMins) {
+                prevTime = times[i];
+            }
+            if (mins > currentInMins) {
+                nextTime = times[i];
+                break;
+            }
+        }
+
+        document.getElementById('prev-cager-content').innerHTML = `<span class="rel-time">${prevTime}</span><span class="rel-text">${cageriData[currentDayKey][prevTime]}</span>`;
+        document.getElementById('next-cager-content').innerHTML = `<span class="rel-time">${nextTime}</span><span class="rel-text">${cageriData[currentDayKey][nextTime]}</span>`;
+    }
+
+    function initSchedule() {
+        const selector = document.getElementById('day-selector');
+        Object.keys(daysMk).forEach(key => {
+            const btn = document.createElement('button');
+            btn.className = `day-btn ${key === selectedDay ? 'selected' : ''}`;
+            btn.innerText = daysMk[key];
+            btn.onclick = () => {
+                selectedDay = key;
+                document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('selected'));
+                btn.classList.add('selected');
+                renderList();
+            };
+            selector.appendChild(btn);
+        });
+        renderList();
+    }
+
+    function renderList() {
+        const container = document.getElementById('cager-list-container');
+        container.innerHTML = '';
+        const data = cageriData[selectedDay];
+        Object.keys(data).forEach(time => {
+            const item = document.createElement('div');
+            item.className = 'cager-item';
+            item.innerHTML = `<span class="cager-time">${time}</span><span class="cager-text">${data[time]}</span>`;
+            container.appendChild(item);
+        });
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+    initSchedule();
+</script>
+
+</body>
+</html>
